@@ -6,8 +6,10 @@ import event.PublicEvent;
 import io.socket.client.Ack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.processing.Messager;
 import model.Model_Message;
 import model.Model_Register;
+import model.Model_User_Account;
 import service.Service;
 
 /*
@@ -45,18 +47,22 @@ public class Login extends javax.swing.JPanel {
             }
 
             @Override
-            public void register(Model_Register data) {
+            public void register(Model_Register data, EventMessage message) {
                 // Gửi dữ liệu đăng ký đến server, bên gửi và bên nhận phải cùng tên sự kiện, kiểu dữ liệu truyền
                 // bug gặp phải là do không cùng kiểu Model_Register
                 
                 Service.getInstance().getClient().emit("register", data.toJSonObject(), new Ack(){
                     @Override
                     public void call(Object... os) {
-//                        if (os.length > 0) {
-//                            Model_Message ms = new Model_Message((boolean) os[0], os[1].toString());
-//                            message.callMessage(ms);
-//                            //  call message back when done register
-//                        }
+                        if (os.length > 0) {
+                            Model_Message ms = new Model_Message((boolean) os[0], os[1].toString());
+                            //  call message back when done register
+                            message.callMessage(ms);
+                            if(ms.isAction()){
+                                Model_User_Account user = new Model_User_Account(os[2]);
+                                Service.getInstance().setUser(user);
+                            }
+                        }
                     }
                     
                 });
