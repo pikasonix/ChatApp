@@ -3,42 +3,86 @@ package form;
 import component.Item_People;
 import event.EventMenuLeft;
 import event.PublicEvent;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 import model.Model_User_Account;
 import net.miginfocom.swing.MigLayout;
 import swing.ScrollBar;
 
-/**
- *
- * @author Ho Xuan Thai
- */
 public class Menu_Left extends javax.swing.JPanel {
+
+    private List<Model_User_Account> userAccount;
 
     public Menu_Left() {
         initComponents();
         init();
     }
 
-    private List<Model_User_Account> userAccount;
-
     private void init() {
         // Đoạn này để set cái JScrollBar thành cái ScrollBar mới
         sp.setVerticalScrollBar(new ScrollBar());
-        // Đoạn này để set cái menuList theo cái migLayout
+        // Đoạn này để set cái menuList theo cái migLayout, fillx là để nó dãn rộng theo chiều ngang
         menuList.setLayout(new MigLayout("fillx", "0[]0", "0[]0"));
+        // Khởi tạo danh sách `userAccount` để lưu trữ danh sách các tài khoản người dùng.
         userAccount = new ArrayList<>();
+        // Đăng ký một sự kiện để cập nhật menu bên trái khi có người dùng mới được thêm vào.
         PublicEvent.getInstance().addEventMenuLeft(new EventMenuLeft() {
             @Override
             public void newUser(List<Model_User_Account> users) {
+                // Thêm mỗi người dùng mới vào `menuList` dưới dạng các mục (Item_People).
                 for (Model_User_Account mua : users) {
-                    menuList.add(new Item_People(mua.getUserName()), "wrap");
+                    // Thêm người dùng mới vào danh sách
+                    userAccount.add(mua);
+                    menuList.add(new Item_People(mua), "wrap");
+                    // Cập nhật lại giao diện.
                     menuList.repaint();
+                    // Xác nhận bố cục mới.
                     menuList.revalidate();
                 }
             }
-        });
 
+            @Override
+            public void userConnect(int userID) {
+                for(Model_User_Account mua : userAccount){
+                    if(mua.getUserID() == userID){
+                        mua.setStatus(true);
+                        PublicEvent.getInstance().getEventMain().updateUser(mua);
+                        break;
+                    }
+                }
+                if(menuMessage.isSelected()){
+                    for(Component com : menuList.getComponents()){
+                        Item_People item = (Item_People) com;
+                        if(item.getUser().getUserID() == userID){
+                            item.updateStatus();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void userDisconnect(int userID) {
+                for(Model_User_Account mua : userAccount){
+                    if(mua.getUserID() == userID){
+                        mua.setStatus(false);
+                        PublicEvent.getInstance().getEventMain().updateUser(mua);
+                        break;
+                    }
+                }
+                if(menuMessage.isSelected()){
+                    for(Component com : menuList.getComponents()){
+                        Item_People item = (Item_People) com;
+                        if(item.getUser().getUserID() == userID){
+                            item.updateStatus();
+                            break;
+                        }
+                    }
+                }
+            }
+            
+        });
         // In ra menu left danh sách người
         showPeople();
     }
@@ -46,7 +90,7 @@ public class Menu_Left extends javax.swing.JPanel {
     private void showPeople() {
         menuList.removeAll();
         for (Model_User_Account mua : userAccount) {
-            menuList.add(new Item_People(mua.getUserName()), "wrap");
+            menuList.add(new Item_People(null), "wrap");
         }
         menuList.repaint();
         menuList.revalidate();
@@ -55,7 +99,7 @@ public class Menu_Left extends javax.swing.JPanel {
     private void showGroup() {
         menuList.removeAll();
         for (int i = 0; i < 5; i++) {
-            menuList.add(new Item_People("Group" + i), "wrap");
+            menuList.add(new Item_People(null), "wrap");
         }
         menuList.repaint();
         menuList.revalidate();
@@ -64,7 +108,7 @@ public class Menu_Left extends javax.swing.JPanel {
     private void showBox() {
         menuList.removeAll();
         for (int i = 0; i < 10; i++) {
-            menuList.add(new Item_People("Box" + i), "wrap");
+            menuList.add(new Item_People(null), "wrap");
         }
         menuList.repaint();
         menuList.revalidate();
@@ -166,21 +210,23 @@ public class Menu_Left extends javax.swing.JPanel {
     }//GEN-LAST:event_menuMessageActionPerformed
 
     private void menuGroupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuGroupActionPerformed
-        if (!menuGroup.isSelected()) {
-            menuMessage.setSelected(false);
-            menuGroup.setSelected(true);
-            menuBox.setSelected(false);
-            showGroup();
-        }
+//        if (!menuGroup.isSelected()) {
+//            menuMessage.setSelected(false);
+//            menuGroup.setSelected(true);
+//            menuBox.setSelected(false);
+//            showGroup();
+//        }
+//          Tính năng này cập nhật sau
     }//GEN-LAST:event_menuGroupActionPerformed
 
     private void menuBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuBoxActionPerformed
-        if (!menuBox.isSelected()) {
-            menuMessage.setSelected(false);
-            menuGroup.setSelected(false);
-            menuBox.setSelected(true);
-            showBox();
-        }
+//        if (!menuBox.isSelected()) {
+//            menuMessage.setSelected(false);
+//            menuGroup.setSelected(false);
+//            menuBox.setSelected(true);
+//            showBox();
+//        }
+//          Tính năng này cập nhật sau
     }//GEN-LAST:event_menuBoxActionPerformed
 
 
