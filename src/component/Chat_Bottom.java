@@ -1,5 +1,6 @@
 package component;
 
+import app.MessageType;
 import event.PublicEvent;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -37,6 +38,7 @@ public class Chat_Bottom extends javax.swing.JPanel {
 
     public void setUser(Model_User_Account user) {
         this.user = user;
+        panelMore.setUser(user);
     }
 
     public Chat_Bottom() {
@@ -93,13 +95,15 @@ public class Chat_Bottom extends javax.swing.JPanel {
         cmdMore.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {// Khi nút more được nhấn
-                if (panelMore.isVisible()) {
-                    cmdMore.setIcon(new ImageIcon(getClass().getResource("/icon/more_disable.png")));
-                    panelMore.setVisible(false);
+                if (panelMore.isVisible()) { // Nếu panelMore đang hiện thì ẩn nó đi, thay đổi cái icon more
+                    cmdMore.setIcon(new ImageIcon(getClass().getResource("/icon/more_disable.png"))); // thay đổi icon
+                    panelMore.setVisible(false);    // ẩn
+                    // dock south là để ghim nó ở dưới, h 0 là cho chiều cao nó bằng 0, ! là để cho biết đó là 1 giá trị cố định
                     mig.setComponentConstraints(panelMore, "dock south, h 0!");
-                } else {
-                    cmdMore.setIcon(new ImageIcon(getClass().getResource("/icon/more.png")));
-                    panelMore.setVisible(true);
+                } else {    // Nếu panelMore đang ẩn thì lại hiện nó lên, thay đổi cái icon more
+                    cmdMore.setIcon(new ImageIcon(getClass().getResource("/icon/more.png")));   // thay đổi icon
+                    panelMore.setVisible(true); // hiện
+                    // dock south là để ghim nó ở dưới, h 150 là cho chiều cao nó bằng 150, ! là để cho biết đó là 1 giá trị cố định
                     mig.setComponentConstraints(panelMore, "dock south, h 150!");
                 }
             }
@@ -108,6 +112,7 @@ public class Chat_Bottom extends javax.swing.JPanel {
         panel.add(cmd);// Thêm nút gửi vào panel
         add(panel);// Thêm panel vào
         panelMore = new Panel_More();
+        // bật app lên thì auto ẩn đi
         panelMore.setVisible(false);
         add(panelMore, "dock south, h 0!");
     }
@@ -116,7 +121,7 @@ public class Chat_Bottom extends javax.swing.JPanel {
         String text = txt.getText().trim();// Lấy nội dung từ khung nhập văn bản, bỏ đoạn trắng 2 đầu
         if (!text.equals("")) {// Nếu nội dung không rỗng
             // Tạo tin nhắn mới
-            Model_Send_Message data = new Model_Send_Message(Service.getInstance().getUser().getUserID(), user.getUserID(), text);
+            Model_Send_Message data = new Model_Send_Message(Service.getInstance().getUser().getUserID(), user.getUserID(), text, 1);
             // Phát sự kiện có tên "send_to_user", cùng với dữ liệu ở dạng JSON
             Service.getInstance().getClient().emit("send_to_user", data.toJsonObject());
             PublicEvent.getInstance().getEventChat().sendMessage(data); // Thêm đoạn tin nhắn này vào bên phải khung chat

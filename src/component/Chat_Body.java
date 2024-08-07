@@ -1,5 +1,7 @@
 package component;
 
+import app.MessageType;
+import emoji.Emoji;
 import java.awt.Adjustable;
 import java.awt.Color;
 import java.awt.event.AdjustmentEvent;
@@ -19,24 +21,32 @@ public class Chat_Body extends javax.swing.JPanel {
         initComponents();
         init();
     }
-    private void init(){
+
+    private void init() {
         body.setLayout(new MigLayout("fillx", "", "5[]5"));
         sp.setVerticalScrollBar(new ScrollBar());
         sp.getVerticalScrollBar().setBackground(new Color(239, 239, 239));
     }
+
     // Thêm tin nhắn vào bên trái ( người khác nhắn tới )
-    public void addItemLeft(Model_Receive_Message data){
-        Chat_Left item = new Chat_Left();
-        item.setText(data.getText());
-        item.setTime();
-        // Đoạn này là để cho cái đoạn tin nhắn có thể xuống dòng 
-        body.add(item, "wrap, w 100::80%");
-        // ::80% set max with 80%
+    public void addItemLeft(Model_Receive_Message data) {
+        if (data.getMessageType() == 1) {
+            Chat_Left item = new Chat_Left();
+            item.setText(data.getText());
+            item.setTime();
+            // Đoạn này là để cho cái đoạn tin nhắn có thể xuống dòng 
+            body.add(item, "wrap, w 100::80%");
+        } else if (data.getMessageType() == 2) {    
+            Chat_Left item = new Chat_Left();
+            item.setEmoji(Emoji.getInstance().getEmoji(Integer.valueOf(data.getText())).getIcon());
+            body.add(item, "wrap, w 100::80%");
+        }
         repaint();
         revalidate();
     }
+
     // Thêm tin nhắn vào bên trái ( người khác nhắn tới ), ảnh đã mã hóa
-    public void addItemLeft(String text, String user, String[] images){
+    public void addItemLeft(String text, String user, String[] images) {
         Chat_Left_With_Profile item = new Chat_Left_With_Profile();
         item.setText(text);
         item.setImage(images);
@@ -44,26 +54,33 @@ public class Chat_Body extends javax.swing.JPanel {
         item.setUserProfile(user);
         // Đoạn này là để cho cái đoạn tin nhắn có thể xuống dòng 
         body.add(item, "wrap, w 100::80%");
-        // ::80% set max with 80%
         body.repaint();
         body.revalidate();
     }
+
     // Thêm tin nhắn vào bên phải ( mình gửi)
-    public void addItemRight(Model_Send_Message data){
-        Chat_Right item = new Chat_Right();
-        // text
-        item.setText(data.getText());
-        // thời điểm gửi
-        item.setTime();
-        // Đoạn này là để cho cái đoạn tin nhắn có thể xuống dòng 
-        body.add(item, "wrap, al right, w 100::80%");
-        // ::80% set max with 80%
+    public void addItemRight(Model_Send_Message data) {
+        if (data.getMessageType() == 1) {// Nếu là type Text thì gửi tinh nhắn text
+            Chat_Right item = new Chat_Right();
+            // text
+            item.setText(data.getText());
+            // thời điểm gửi
+            item.setTime();
+            // Đoạn này là để cho cái đoạn tin nhắn có thể xuống dòng 
+            body.add(item, "wrap, al right, w 100::80%");
+        } else if (data.getMessageType() == 2) {    // Nếu là type Emoji thì gửi Emoji
+            // Vẫn đang còn 1 lỗi là khi gửi không giống khi nhận nma kệ đi
+            Chat_Right item = new Chat_Right();
+            item.setEmoji(Emoji.getInstance().getEmoji(Integer.valueOf(data.getText())).getIcon());
+            // Không có phần body.add() này nên không thêm cái icon gửi vào đoạn chat, fix ngày 12/5
+            body.add(item, "wrap, al right, w 100::80%");   
+        }
         repaint();
         revalidate();
-        scrollToBottom();
     }
+
     // Thêm tin nhắn vào bên trái ( người khác nhắn tới ), có gửi file
-    public void addItemFileLeft(String text, String user, String fileName, String fileSize){
+    public void addItemFileLeft(String text, String user, String fileName, String fileSize) {
         Chat_Left_With_Profile item = new Chat_Left_With_Profile();
         item.setText(text);
         item.setFile(fileName, fileSize);
@@ -71,12 +88,12 @@ public class Chat_Body extends javax.swing.JPanel {
         item.setUserProfile(user);
         // Đoạn này là để cho cái đoạn tin nhắn có thể xuống dòng 
         body.add(item, "wrap, w 100::80%");
-        // ::80% set max with 80%
         body.repaint();
         body.revalidate();
     }
-    // Thêm tin nhắn vào bên phải ( mình gửi)
-    public void addItemFileRight(String text, String fileName, String fileSize){
+
+    // Thêm tin nhắn vào bên phải ( mình gửi), có gửi file
+    public void addItemFileRight(String text, String fileName, String fileSize) {
         Chat_Right item = new Chat_Right();
         // text
         item.setText(text);
@@ -86,11 +103,11 @@ public class Chat_Body extends javax.swing.JPanel {
         item.setTime();
         // Đoạn này là để cho cái đoạn tin nhắn có thể xuống dòng 
         body.add(item, "wrap, al right, w 100::80%");
-        // ::80% set max with 80%
         body.repaint();
         body.revalidate();
     }
-    public void addDate(String date){
+
+    public void addDate(String date) {
         Chat_Date item = new Chat_Date();
         item.setDate(date);
         // Nếu không có "wrap, al.." thì sẽ tách dòng giữa tin nhắn và ngày
@@ -98,24 +115,27 @@ public class Chat_Body extends javax.swing.JPanel {
         body.repaint();
         body.revalidate();
     }
-    public void clearChat(){
+
+    public void clearChat() {
         body.removeAll();
         repaint();
         revalidate();
     }
+
     // Tự động cuộn tới cuối cùng
     private void scrollToBottom() {
-    JScrollBar verticalBar = sp.getVerticalScrollBar();
-    AdjustmentListener downScroller = new AdjustmentListener() {
-        @Override
-        public void adjustmentValueChanged(AdjustmentEvent e) {
-            Adjustable adjustable = e.getAdjustable();
-            adjustable.setValue(adjustable.getMaximum());
-            verticalBar.removeAdjustmentListener(this);
-        }
-    };
-    verticalBar.addAdjustmentListener(downScroller);
-}
+        JScrollBar verticalBar = sp.getVerticalScrollBar();
+        AdjustmentListener downScroller = new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                Adjustable adjustable = e.getAdjustable();
+                adjustable.setValue(adjustable.getMaximum());
+                verticalBar.removeAdjustmentListener(this);
+            }
+        };
+        verticalBar.addAdjustmentListener(downScroller);
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
