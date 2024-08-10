@@ -1,5 +1,6 @@
 package model;
 
+import event.EventFileSender;
 import io.socket.client.Ack;
 import io.socket.client.Socket;
 import java.io.File;
@@ -17,6 +18,7 @@ public class Model_File_Sender {
     //RandomAccessFile được sử dụng để đọc và ghi dữ liệu từ và đến một tập tin theo cách không tuần tự
     private RandomAccessFile accessFile;
     private Socket socket;
+    private EventFileSender event;  // Phần này để hiển thị quá trình gửi ảnh 
 
     public Model_File_Sender() {
     }
@@ -68,6 +70,9 @@ public class Model_File_Sender {
 
     public void startSend(int fileID) throws IOException {
         this.fileID = fileID;
+        if(event != null){
+            event.onStartSending();
+        }
         sendingFile();
     }
 
@@ -91,9 +96,16 @@ public class Model_File_Sender {
                 if (act) {
                     try {
                         if (!data.isFinish()) { // Gửi tiếp
+                            if (event != null) {
+                                event.onSending(getPercentage());   // Tiếp tục hiển thị quá trình gửi
+                            }
                             sendingFile();
                         } else {    // Thông báo cho service đã gửi xong
+                            //  File send finish
                             Service.getInstance().fileSendFinish(Model_File_Sender.this);
+                            if (event != null) {
+                                event.onFinish();   // Gửi xong, ẩn quá trình gửi
+                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -102,13 +114,15 @@ public class Model_File_Sender {
             }
         });
     }
+
     // Phần trăm file đã gửi 
     public double getPercentage() throws IOException {
         double percentage;
         long filePointer = accessFile.getFilePointer();
-        percentage = filePointer*100/fileSize;
+        percentage = filePointer * 100 / fileSize;
         return percentage;
     }
+
     // Lấy phần mở rộng của file
     private String getExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf("."), fileName.length());
@@ -168,6 +182,10 @@ public class Model_File_Sender {
 
     public void setSocket(Socket socket) {
         this.socket = socket;
+    }
+    
+    public void addEvent(EventFileSender event){
+        this.event = event;
     }
 
 }
