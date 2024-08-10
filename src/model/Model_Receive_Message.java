@@ -1,6 +1,5 @@
 package model;
 
-import app.MessageType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,7 +8,15 @@ public class Model_Receive_Message {
     private int messageType;    // Kiểu tin nhắn text, emoji, file
     private int fromUserID;     // Gửi từ người dùng có ID là ...
     private String text;    // Nội dung tin nhắn
-    private Model_Receive_Image dataImage;  // 
+    private Model_Receive_Image dataImage;  //Các thông tin về ảnh 
+
+    public Model_Receive_Image getDataImage() {
+        return dataImage;
+    }
+
+    public void setDataImage(Model_Receive_Image dataImage) {
+        this.dataImage = dataImage;
+    }
     
     public int getFromUserID() {
         return fromUserID;
@@ -65,7 +72,7 @@ public class Model_Receive_Message {
             json.put("fromUserID", fromUserID);
             json.put("text", text);
             if(dataImage != null){
-                json.put("dataImage", dataImage);
+                json.put("dataImage", dataImage.toJsonOject());
             }
             return json;
         } catch (JSONException e) {
