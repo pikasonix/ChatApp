@@ -14,8 +14,10 @@ import javax.swing.JLayer;
 import javax.swing.JLayeredPane;
 import javax.swing.border.EmptyBorder;
 import model.Model_File_Sender;
+import model.Model_Receive_File;
 import model.Model_Receive_Image;
 import net.miginfocom.swing.MigLayout;
+import swing.JIMSendTextPane;
 
 public class Chat_Item extends javax.swing.JLayeredPane {
 
@@ -43,7 +45,7 @@ public class Chat_Item extends javax.swing.JLayeredPane {
         // Cài màu cho tên
         cmd.setForeground(new Color(30, 121, 213));
         // Cài đặt phông chữ
-        cmd.setFont(new java.awt.Font("sansserif", 1, 13));
+        cmd.setFont(new java.awt.Font("JetBrains Mono", 1, 13));
 
         txt.setBorder(new EmptyBorder(0, 5, 5, 5));
         layer.add(cmd);
@@ -93,16 +95,25 @@ public class Chat_Item extends javax.swing.JLayeredPane {
         add(layer);
     }
 
-//    // Gửi file ( Thêm file vào khung chat, không phải sự kiện );
-//    public void setFile(String fileName, String fileSize) {
-//        JLayeredPane layer = new JLayeredPane();
-//        layer.setLayout(new FlowLayout(FlowLayout.LEFT));
-//        layer.setBorder(new EmptyBorder(5, 5, 0, 5));
-//        Chat_File chatFile = new Chat_File();
-//        chatFile.setFile(fileName, fileSize);
-//        layer.add(chatFile);
-//        add(layer);
-//    }
+    public void setFile(boolean right, Model_Receive_File dataFile) {
+        JLayeredPane layer = new JLayeredPane();
+        layer.setLayout(new FlowLayout(right ? FlowLayout.RIGHT : FlowLayout.LEFT));
+        layer.setBorder(new EmptyBorder(5, 0, 0, 5));
+        Chat_File chatFile = new Chat_File();
+        chatFile.setFile(dataFile);
+        layer.add(chatFile);
+        add(layer);
+    }
+    
+    public void setFile(boolean right, Model_File_Sender dataFile) {
+        JLayeredPane layer = new JLayeredPane();
+        layer.setLayout(new FlowLayout(right ? FlowLayout.RIGHT : FlowLayout.LEFT));
+        layer.setBorder(new EmptyBorder(5, 5, 0, 0));
+        Chat_File chatFile = new Chat_File();
+        chatFile.setFile(dataFile);
+        layer.add(chatFile);
+        add(layer);
+    }
 
     // Gửi emoji ( Thêm cái emoji vòa đoạn chat, không phải sự kiện gửi )
     public void setEmoji(boolean right, Icon icon) {
@@ -133,7 +144,7 @@ public class Chat_Item extends javax.swing.JLayeredPane {
     public void hideText() {
         txt.setVisible(false);
     }
-
+  
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -144,6 +155,7 @@ public class Chat_Item extends javax.swing.JLayeredPane {
 
         txt.setBackground(new java.awt.Color(239, 239, 239));
         txt.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 5, 10));
+        txt.setFont(new java.awt.Font("JetBrains Mono", 0, 12)); // NOI18N
         txt.setSelectionColor(new java.awt.Color(94, 190, 255));
         add(txt);
     }// </editor-fold>//GEN-END:initComponents
